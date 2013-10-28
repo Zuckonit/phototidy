@@ -2,14 +2,14 @@
 # encoding: utf-8
 '''
 #=============================================================================
-#     FileName: phototidy.py
-#         Desc:
+#     FileName: ptidy.py
+#         Desc: tidy your photo automatically
 #       Author: Mocker
 #        Email: Zuckerwooo@gmail.com
 #     HomePage: zuckonit.github.com
-#      Version: 0.0.1
-#   LastChange: 2013-10-29 02:34:10
-#      History:
+#      Version: 0.0.2
+#   LastChange: 2013-10-29 07:22:08
+#      History: bugfix in windows platform
 #=============================================================================
 '''
 import os
@@ -31,7 +31,7 @@ def get_pic_size(f):
     return os.path.getsize(f)
 
 def get_secure_dir(d):
-    return os.path.expanduser(os.path.abspath(d))
+    return os.path.expanduser(os.path.abspath(d)).replace('\\','/')
 
 def get_all_file(d, fmt=None, size=None):
     d = get_secure_dir(d)
@@ -41,7 +41,7 @@ def get_all_file(d, fmt=None, size=None):
     else:
         fmt = SUPPORT_SUFFIX
     for i in os.walk(d):
-        f = [os.path.join(i[0], f) for f in i[2] if len(i[2]) > 0 and f.endswith(fmt)]
+        f = [os.path.join(i[0], f).replace('\\','/') for f in i[2] if len(i[2]) > 0 and f.endswith(fmt)]
         files.extend(f)
     if size is not None:
         size *= 0x3e8
@@ -89,6 +89,7 @@ def opt(args):
     -m | --month   tidy by month
     -y | --year    tidy by year
     -s | --size    tidy pictures bigger than size
+    -f | --format  filter the special format, split with ':'
     """
     parser = optparse.OptionParser(usage="usage: %prog [options] photo-dir")
     parser.add_option(
@@ -121,11 +122,7 @@ def opt(args):
         dest="fmt", type="string",
         help="filter the picture with special format, split with ':'"
     )
-    parser.add_option(
-        "-c", "--copy",
-        dest="copy", action="store_true", default=False,
-        help="use copy not move"
-    )
+
     (options, args) = parser.parse_args(args)
 
     if options.pic is None or not os.path.isdir(options.pic):
@@ -134,7 +131,11 @@ def opt(args):
     files = get_all_file(options.pic,options.fmt, options.size)
     pic = get_secure_dir(options.pic)
 
-    _f = '%s.bk'%(os.path.join(pic,'.%s'%time.ctime()))
+    if os.name == 'nt':
+        _f = '%s.bk'%(os.path.join(pic,'%s'%time.time()))
+    else:
+        _f = '%s.bk'%(os.path.join(pic,'.%s'%time.ctime()))
+        _f = _f.replace('\\', '/')
     bk_f = open(_f, 'wb')
     if options.day:
         ff = get_all_date(files, 'day')
@@ -150,7 +151,7 @@ def opt(args):
         save_d = os.path.join(pic, d)
         os.path.isdir(save_d) or os.makedirs(save_d)
         for f in ff[d]:
-            dst = os.path.join(save_d, f.replace('\\','/').split('/')[-1])
+            dst = os.path.join(save_d, f.split('/')[-1]).replace('\\', '/')
             if f != dst:
                 os.rename(f,dst)
                 bk_f.write('%s ==> %s\r\n'%(f,dst))
