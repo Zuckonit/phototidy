@@ -14,6 +14,7 @@
 '''
 import os
 import sys
+import stat
 import time
 import optparse
 
@@ -76,10 +77,9 @@ def get_all_date(files, by='day'):
                 date[d] = [i,]
     return date
 
-def backup(bk, src, dst):
-    f = open(bk, 'wb')
-    f.write('%s === %s' % (src, dst))
-    f.close()
+def restore(bk):
+    """restore the pictures structure"""
+    pass
 
 def opt(args):
     """
@@ -159,6 +159,7 @@ def opt(args):
     bk_f.close()
     if count == 0:  #if there is no change, no bk file will generate
         os.remove(_f)
+    os.chmod(_f, stat.S_IREAD)  #make the bk file readonly
 
 if __name__ == '__main__':
     opt(sys.argv)
