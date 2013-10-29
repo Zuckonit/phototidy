@@ -13,6 +13,7 @@
 #=============================================================================
 '''
 import os
+import re
 import sys
 import stat
 import time
@@ -76,6 +77,9 @@ def get_all_date(files, by='day'):
             elif not date.has_key(d):
                 date[d] = [i,]
     return date
+
+def exists_spec_dir(d):
+    pass
 
 def restore(bk):
     """restore the pictures structure"""
@@ -152,7 +156,7 @@ def opt(args):
         os.path.isdir(save_d) or os.makedirs(save_d)
         for f in ff[d]:
             dst = os.path.join(save_d, f.split('/')[-1]).replace('\\', '/')
-            if f != dst:
+            if not os.path.samefile(f, dst): #jump if they are the same file
                 os.rename(f,dst)
                 bk_f.write('%s ==> %s\r\n'%(f,dst))
                 count = 1
