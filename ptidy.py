@@ -19,7 +19,8 @@ import stat
 import time
 import optparse
 
-SUPPORT_SUFFIX = ("bmp", "jpg", "jpeg", "jpe", "gif", "png", "ico")
+SUPPORT_SUFFIX = ("bmp", "jpg", "jpeg", "jpe", "gif", "png", "ico",
+            "BMP", "JPG", "JPEG", "JPE", "GIF", "PNG", "ICO")
 
 def get_pic_format(f):
     return f.split('.')[-1]
@@ -43,8 +44,8 @@ def get_all_file(d, fmt=None, size=None):
     else:
         fmt = SUPPORT_SUFFIX
     for i in os.walk(d):
-        f = [os.path.join(i[0], f).replace('\\','/') for f in i[2] if len(i[2]) > 0 and f.endswith(fmt)]
-        files.extend(f)
+        p = [os.path.join(i[0], f).replace('\\','/') for f in i[2] if len(i[2]) > 0 and f.endswith(fmt)]
+        files.extend(p)
     if size is not None:
         size *= 0x3e8
         files = [i for i in files if get_pic_size(i) > size]
@@ -134,7 +135,6 @@ def opt(args):
         return -1
     files = get_all_file(options.pic,options.fmt, options.size)
     pic = get_secure_dir(options.pic)
-
     if os.name == 'nt':
         _f = '%s.bk'%(os.path.join(pic,'%s'%time.time()))
     else:
@@ -149,21 +149,21 @@ def opt(args):
         ff = get_all_date(files, 'year')
     else:
         ff = get_all_date(files)
-
     count = 0
     for d in ff:
         save_d = os.path.join(pic, d)
         os.path.isdir(save_d) or os.makedirs(save_d)
         for f in ff[d]:
             dst = os.path.join(save_d, f.split('/')[-1]).replace('\\', '/')
-            if not os.path.samefile(f, dst): #jump if they are the same file
+            if f != dst: #jump if they are the same file
                 os.rename(f,dst)
                 bk_f.write('%s ==> %s\r\n'%(f,dst))
                 count = 1
     bk_f.close()
     if count == 0:  #if there is no change, no bk file will generate
         os.remove(_f)
-    os.chmod(_f, stat.S_IREAD)  #make the bk file readonly
+    else:
+        os.chmod(_f, stat.S_IREAD)  #make the bk file readonly
 
 if __name__ == '__main__':
     opt(sys.argv)
