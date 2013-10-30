@@ -40,7 +40,9 @@ def get_all_file(d, fmt=None, size=None):
     d = get_secure_dir(d)
     files = []
     if fmt is not None:
-        fmt = tuple(fmt.split(':'))
+        fmt = fmt.lower()
+        fmt = fmt.split(':')
+        fmt.extend([i.upper() for i in fmt])
     else:
         fmt = SUPPORT_SUFFIX
     for i in os.walk(d):
