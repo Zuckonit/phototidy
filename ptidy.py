@@ -25,7 +25,7 @@ def get_pic_format(f):
     return f.split('.')[-1]
 
 def get_pic_date(f):
-    ct = os.path.getctime(f)
+    ct = os.path.getmtime(f)
     return time.gmtime(ct)
 
 def get_pic_size(f):
