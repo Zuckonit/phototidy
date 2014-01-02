@@ -54,31 +54,27 @@ def get_all_file(d, fmt=None, size=None):
     return files
 
 def get_all_date(files, by='day'):
-    date = {}
+    d, date = '', {}
+    
     if by == 'day':
         for i in files:
             ctm = get_pic_date(i)
             d = "%s-%s-%s" % (ctm.tm_year, ctm.tm_mon, ctm.tm_mday)
-            if date.has_key(d):
-                date[d].extend([i])
-            elif not date.has_key(d):
-                date[d] = [i,]
+            
     elif by == 'month':
         for i in files:
             ctm = get_pic_date(i)
             d = "%s-%s" % (ctm.tm_year, ctm.tm_mon)
-            if date.has_key(d):
-                date[d].extend([i])
-            elif not date.has_key(d):
-                date[d] = [i,]
+           
     elif by == 'year':
         for i in files:
             ctm = get_pic_date(i)
             d = '%s'%ctm.tm_year
-            if date.has_key(d):
-                date[d].extend([i])
-            elif not date.has_key(d):
-                date[d] = [i,]
+
+    if date.has_key(d):
+        date[d].extend([i])
+    elif not date.has_key(d):
+        date[d] = [i,]             
     return date
 
 def exists_spec_dir(d):
